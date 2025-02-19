@@ -21,7 +21,7 @@ def register_env(target_class):
 
 def make(env_name, *args, **kwargs):
     """
-    Instantiates a robosuite environment.
+    Instantiates a robosuite environment if the env has been registered.
     This method attempts to mirror the equivalent functionality of gym.make in a somewhat sloppy way.
     Args:
         env_name (str): Name of the robosuite environment to initialize
@@ -45,6 +45,18 @@ class EnvMeta(type):
     """Metaclass for registering environments"""
 
     def __new__(meta, name, bases, class_dict):
+        """register the environment if the name is allowed
+            will be called when a new class based on this is "imported"
+
+        Args:
+            meta (_type_): _description_
+            name (_type_): _description_
+            bases (_type_): _description_
+            class_dict (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         cls = super().__new__(meta, name, bases, class_dict)
 
         # List all environments that should not be registered here.
