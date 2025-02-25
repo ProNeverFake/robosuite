@@ -14,7 +14,6 @@ from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
 
 REGISTERED_ENVS = {}
 
-
 def register_env(target_class):
     REGISTERED_ENVS[target_class.__name__] = target_class
 
@@ -117,6 +116,8 @@ class MujocoEnv(metaclass=EnvMeta):
         renderer_config=None,
         seed=None,
     ):
+        # * BBMOD
+        
         # Rendering-specific attributes
         self.has_renderer = has_renderer
         # offscreen renderer needed for on-screen rendering
@@ -153,7 +154,7 @@ class MujocoEnv(metaclass=EnvMeta):
         self._ep_meta = {}
 
         # Load the model
-        self._load_model()
+        self._load_model() # ! here check the _load_model method in the final subclass!
 
         # Initialize the simulation
         self._initialize_sim()
@@ -193,7 +194,8 @@ class MujocoEnv(metaclass=EnvMeta):
                 camera_id = self.sim.model.camera_name2id(self.render_camera)
             else:
                 camera_id = None
-            self.viewer = MjviewerRenderer(env=self, camera_id=camera_id, **self.renderer_config)
+            # ! BBMOD launch passive
+            self.viewer = MjviewerRenderer(env=self, camera_id=camera_id, **self.renderer_config, launch_passive=False)
         else:
             raise ValueError(
                 f"{self.renderer} is not a valid renderer name. Valid options include mjviewer (native mujoco renderer), mujoco"
@@ -225,6 +227,10 @@ class MujocoEnv(metaclass=EnvMeta):
 
     def _load_model(self):
         """Loads an xml model, puts it in self.model"""
+        pass
+    
+    def _reload_modified_model(self):
+        """Reloads the modified model"""
         pass
 
     def _setup_references(self):
@@ -266,7 +272,7 @@ class MujocoEnv(metaclass=EnvMeta):
         # Setup sim time based on control frequency
         self.initialize_time(self.control_freq)
 
-    def reset(self):
+    def reset(self, reload_modified_model=False):
         """
         Resets simulation.
         Returns:
@@ -279,12 +285,20 @@ class MujocoEnv(metaclass=EnvMeta):
         if self.renderer == "mjviewer":
             self._destroy_viewer()
 
-        if self.hard_reset and not self.deterministic_reset:
+        if reload_modified_model:
+            if self.render == "mujoco":
+                self._destroy_viewer()
+                self._destroy_sim()
+            self._reload_modified_model() # ! BBWARN
+            self._initialize_sim()
+
+        elif self.hard_reset and not self.deterministic_reset:
             if self.renderer == "mujoco":
                 self._destroy_viewer()
                 self._destroy_sim()
             self._load_model()
             self._initialize_sim()
+        
         # Else, we only reset the sim internally
         else:
             self.sim.reset()
@@ -480,7 +494,7 @@ class MujocoEnv(metaclass=EnvMeta):
             # need to launch again after it was destroyed
             self.initialize_renderer()
             # so that mujoco viewer renders
-            self.viewer.update()
+            self.viewer.update() 
 
         observations = self.viewer._get_observations() if self.viewer_get_obs else self._get_observations()
         return observations, reward, done, info
@@ -580,6 +594,8 @@ class MujocoEnv(metaclass=EnvMeta):
 
     def edit_model_xml(self, xml_str):
         """
+        relative resource path to absolute path
+        
         This function edits the model xml with custom changes, including resolving relative paths,
         applying changes retroactively to existing demonstration files, and other custom scripts.
         Environment subclasses should modify this function to add environment-specific xml editing features.

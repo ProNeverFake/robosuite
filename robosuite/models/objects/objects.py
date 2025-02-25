@@ -19,7 +19,7 @@ from robosuite.utils.mjcf_utils import (
 )
 
 # Dict mapping geom type string keywords to group number
-GEOMTYPE2GROUP = {
+GEOMTYPE2GROUP = { # ! BBWARN 
     "collision": {0},  # If we want to use a geom for physics, but NOT visualize
     "visual": {1},  # If we want to use a geom for visualization, but NOT physics
     "all": {0, 1},  # If we want to use a geom for BOTH physics + visualization
@@ -123,7 +123,7 @@ class MujocoObject(MujocoModel):
         """
         raise NotImplementedError
 
-    def _get_object_properties(self):
+    def _get_object_properties(self): 
         """
         Helper function to extract relevant object properties (bodies, joints, contact/visual geoms, etc...) from this
         object's XML tree. Assumes the self._obj attribute has already been filled.
@@ -341,7 +341,7 @@ class MujocoXMLObject(MujocoObject, MujocoXML):
         self._scale = scale
 
         # joints for this object
-        if joints == "default":
+        if joints == "default": 
             self.joint_specs = [self.get_joint_attrib_template()]  # default free joint
         elif joints is None:
             self.joint_specs = []
@@ -371,7 +371,7 @@ class MujocoXMLObject(MujocoObject, MujocoXML):
         # Rename this top level object body (will have self.naming_prefix added later)
         obj.attrib["name"] = "main"
         # Get all geom_pairs in this tree
-        geom_pairs = self._get_geoms(obj)
+        geom_pairs = self._get_geoms(obj) # * geom pairs is a list of tuples (parent, child)
 
         # Define a temp function so we don't duplicate so much code
         obj_type = self.obj_type
@@ -382,7 +382,7 @@ class MujocoXMLObject(MujocoObject, MujocoXML):
         # Loop through each of these pairs and modify them according to @elements arg
         for i, (parent, element) in enumerate(geom_pairs):
             # Delete non-relevant geoms and rename remaining ones
-            if not _should_keep(element):
+            if not _should_keep(element): # ! BBMARK
                 parent.remove(element)
             else:
                 g_name = element.get("name")

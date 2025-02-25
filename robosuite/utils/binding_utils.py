@@ -1071,7 +1071,22 @@ class MjSim:
 
     @classmethod
     def from_xml_string(cls, xml):
-        model = mujoco.MjModel.from_xml_string(xml)
+        # import ipdb
+        # ipdb.set_trace()
+        try:
+            model = mujoco.MjModel.from_xml_string(xml)
+        except Exception as e:
+            print("Error loading model from XML string")
+            print(e)
+            
+            # ! BBMOD save the xml to '/tmp' for debugging, create the file if it doesn't exist
+            if not os.path.exists("/home/blackbird/tmp"):
+                os.makedirs("/home/blackbird/tmp")
+                
+            with open("/home/blackbird/tmp/model.xml", "w") as f:
+                f.write(xml)
+                
+            return None
         return cls(model)
 
     @classmethod

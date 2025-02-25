@@ -114,7 +114,7 @@ def load_composite_controller_config(controller: Optional[str] = None, robot: Op
     else:
         raise ValueError("Controller must be None or a string.")
 
-    # Attempt to load the controller
+    # Attempt to load the controller (json)
     try:
         with open(controller_fpath) as f:
             composite_controller_config = json.load(f)
@@ -129,7 +129,7 @@ def load_composite_controller_config(controller: Optional[str] = None, robot: Op
     body_parts_controller_configs = composite_controller_config.pop("body_parts", {})
     composite_controller_config["body_parts"] = {}
     for part_name, part_config in body_parts_controller_configs.items():
-        if part_name == "arms":
+        if part_name == "arms": # * if "arm", then arms is a dict of arm:condig. unpack
             for arm_name, arm_config in part_config.items():
                 composite_controller_config["body_parts"][arm_name] = arm_config
         else:

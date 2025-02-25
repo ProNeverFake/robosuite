@@ -54,6 +54,8 @@ class MujocoXML(object):
     def resolve_asset_dependency(self):
         """
         Converts every file dependency into absolute path so when we merge we don't break things.
+        # ! ask for the files to be in the same dir (cannot be nested or in different places)
+        # ! may need to rewrite another absolute path parser
         """
 
         for node in self.asset.findall("./*[@file]"):
@@ -61,6 +63,8 @@ class MujocoXML(object):
             abs_path = os.path.abspath(self.folder)
             abs_path = os.path.join(abs_path, file)
             node.set("file", abs_path)
+            
+        
 
     def create_default_element(self, name):
         """
@@ -97,6 +101,7 @@ class MujocoXML(object):
         """
         if type(others) is not list:
             others = [others]
+        # * merge the others to the root recursively
         for idx, other in enumerate(others):
             if not isinstance(other, MujocoXML):
                 raise XMLError("{} is not a MujocoXML instance.".format(type(other)))
@@ -108,6 +113,7 @@ class MujocoXML(object):
                         root=self.worldbody, tags="body", attribs={"name": merge_body}, return_first=True
                     )
                 )
+                # import ipdb; ipdb.set_trace()
                 for body in other.worldbody:
                     root.append(body)
             self.merge_assets(other)
@@ -268,7 +274,7 @@ class MujocoModel(object):
     """
     Base class for all simulation models used in mujoco.
 
-    Standardizes core API for accessing models' relevant geoms, names, etc.
+    # * Standardizes core API for accessing models' relevant geoms, names, etc.
     """
 
     def correct_naming(self, names):

@@ -531,7 +531,7 @@ class Robot(object):
         """
         raise NotImplementedError
 
-    def _input2dict(self, inp):
+    def _input2dict(self, inp)-> dict:
         """
         Helper function that converts an input that is either a single value or a list into a dict with keys for
         each arm: "right", "left"
@@ -544,7 +544,7 @@ class Robot(object):
         Returns:
             dict: Inputs mapped for each robot arm
         """
-        # First, convert to list if necessary
+        # First, convert to list if necessary 
         if type(inp) is not list:
             inp = [inp for _ in range(2)]
         # Now, convert list to dict and return

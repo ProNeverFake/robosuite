@@ -108,7 +108,7 @@ class RobotModel(MujocoXMLModel, metaclass=RobotModelMeta):
 
     def set_joint_attribute(self, attrib: str, values: np.ndarray, force=True):
         """
-        Sets joint attributes, e.g.: friction loss, damping, etc.
+        Sets joints' attributes, e.g.: friction loss, damping, etc.
 
         Args:
             attrib (str): Attribute to set for all joints
