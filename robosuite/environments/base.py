@@ -195,7 +195,7 @@ class MujocoEnv(metaclass=EnvMeta):
             else:
                 camera_id = None
             # ! BBMOD launch passive
-            self.viewer = MjviewerRenderer(env=self, camera_id=camera_id, **self.renderer_config, launch_passive=False)
+            self.viewer = MjviewerRenderer(env=self, camera_id=camera_id, **self.renderer_config, launch_passive=True)
         else:
             raise ValueError(
                 f"{self.renderer} is not a valid renderer name. Valid options include mjviewer (native mujoco renderer), mujoco"

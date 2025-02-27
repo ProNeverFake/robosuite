@@ -1,4 +1,4 @@
-from robosuite.environments.base import make
+from robosuite.environments.base import make, register_env
 
 # Manipulation environments
 from robosuite.environments.manipulation.lift import Lift

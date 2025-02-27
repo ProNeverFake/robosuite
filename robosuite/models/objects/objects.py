@@ -364,6 +364,15 @@ class MujocoXMLObject(MujocoObject, MujocoXML):
         self._get_object_properties()
 
     def _get_object_subtree(self):
+        """Get the object subtree from the world body. The xml worldbody part see readreadme.md.
+        For each child in every parent-child pair of the object subtree, only children with visual group = 1
+        and collision group = 0 are kept and others are removed from its parent.
+        The collision geom is also duplicated (default flag == True) with a default color (red).
+        A site element is also appended to the obj element.
+
+        Returns:
+            _type_: _description_
+        """
         # Parse object
         # this line used to be wrapped in deepcopy.
         # removed this deepcopy line, as it creates discrepancies between obj and self.worldbody!
@@ -388,7 +397,7 @@ class MujocoXMLObject(MujocoObject, MujocoXML):
                 g_name = element.get("name")
                 g_name = g_name if g_name is not None else f"g{i}"
                 element.set("name", g_name)
-                # Also optionally duplicate collision geoms if requested (and this is a collision geom)
+                # * Also optionally duplicate collision geoms if requested (and this is a collision geom)
                 if self.duplicate_collision_geoms and element.get("group") in {None, "0"}:
                     parent.append(self._duplicate_visual_from_collision(element))
                     # Also manually set the visual appearances to the original collision model
