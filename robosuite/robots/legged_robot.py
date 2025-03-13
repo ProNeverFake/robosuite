@@ -80,6 +80,7 @@ class LeggedRobot(MobileRobot):
 
         self.part_controller_config[self.legs]["actuator_range"] = (low, high)
 
+    # region load controller
     def _load_controller(self):
         """
         Loads controller to be used for dynamic trajectories

@@ -11,6 +11,7 @@ import robosuite.utils.sim_utils as SU
 from robosuite.renderers.base import load_renderer_config
 from robosuite.utils import OpenCVRenderer, SimulationError, XMLError
 from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
+from robosuite.models.tasks.task import Task
 
 REGISTERED_ENVS = {}
 
@@ -98,6 +99,8 @@ class MujocoEnv(metaclass=EnvMeta):
     Raises:
         ValueError: [Invalid renderer selection]
     """
+    
+    model: Task
 
     def __init__(
         self,
@@ -488,6 +491,7 @@ class MujocoEnv(metaclass=EnvMeta):
 
         reward, done, info = self._post_action(action)
 
+        # rendering process
         if self.viewer is not None and self.renderer != "mujoco":
             self.viewer.update()
         elif self.has_renderer and self.renderer == "mjviewer" and self.viewer is None:
@@ -495,7 +499,7 @@ class MujocoEnv(metaclass=EnvMeta):
             self.initialize_renderer()
             # so that mujoco viewer renders
             self.viewer.update() 
-
+        
         observations = self.viewer._get_observations() if self.viewer_get_obs else self._get_observations()
         return observations, reward, done, info
 
@@ -505,7 +509,7 @@ class MujocoEnv(metaclass=EnvMeta):
         Args:
             action (np.array): Action to execute within the environment
             policy_step (bool): Whether this current loop is an actual policy step or internal sim update step
-        """
+        """ # ! BBWARN the policy step is not used.
         self.sim.data.ctrl[:] = action
 
     def _post_action(self, action):
@@ -767,6 +771,7 @@ class MujocoEnv(metaclass=EnvMeta):
         self._destroy_viewer()
         self._destroy_sim()
 
+    # region Properties
     @property
     def observation_modalities(self):
         """

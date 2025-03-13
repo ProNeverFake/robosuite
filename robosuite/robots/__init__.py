@@ -4,6 +4,7 @@ from .wheeled_robot import WheeledRobot
 from .legged_robot import LeggedRobot
 
 from robosuite.models.robots.robot_model import REGISTERED_ROBOTS
+from robosuite.robots.robot import Robot
 
 from robosuite.utils.log_utils import ROBOSUITE_DEFAULT_LOGGER
 
@@ -12,7 +13,7 @@ ALL_ROBOTS = REGISTERED_ROBOTS.keys()
 # Robot class mappings -- must be maintained manually
 # These are the main robot used. Remaining robots are located in
 # https://github.com/ARISE-Initiative/robosuite_models
-ROBOT_CLASS_MAPPING = {
+ROBOT_CLASS_MAPPING : dict[str, Robot] = {
     "Baxter": FixedBaseRobot,
     "IIWA": FixedBaseRobot,
     "Jaco": FixedBaseRobot,
@@ -30,7 +31,10 @@ ROBOT_CLASS_MAPPING = {
     "GR1FloatingBody": LeggedRobot,
     "PandaDexRH": FixedBaseRobot,
     "PandaDexLH": FixedBaseRobot,
+    "H1_2": LeggedRobot,
 }
+
+# ! BBMARK register type
 
 target_type_mapping = {
     "FixedBaseRobot": FixedBaseRobot,

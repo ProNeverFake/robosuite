@@ -526,7 +526,9 @@ class MjModel(metaclass=_MjModelMeta):
         if ndim == 1:
             return joint_addr
         else:
-            return (joint_addr, joint_addr + ndim)
+            # return (joint_addr, joint_addr + ndim)
+            print("BBMOD MJMODEL POSSIBLE BUG!")
+            return joint_addr
 
     def get_joint_qvel_addr(self, name):
         """

@@ -81,6 +81,11 @@ class RobotModel(MujocoXMLModel, metaclass=RobotModelMeta):
         self.mujoco_model: Optional[mujoco.MjModel] = None
 
     def set_mujoco_model(self, mujoco_model: Optional[mujoco.MjModel] = None):
+        '''
+        generate a mujoco model for robot first. This step is executed before generating a mujoco model for the task (environment).
+        
+        The metadata of the robot is stored here and can be used later for specific tasks like motion planning ...
+        '''
         if mujoco_model is not None:
             self.mujoco_model = mujoco_model
         else:
@@ -126,6 +131,7 @@ class RobotModel(MujocoXMLModel, metaclass=RobotModelMeta):
         for i, joint in enumerate(self._elements["joints"]):
             if force or joint.get(attrib, None) is None:
                 joint.set(attrib, array_to_string(np.array([values[i]])))
+# region add base
 
     def add_base(self, base: RobotBaseModel):
         """
@@ -187,6 +193,7 @@ class RobotModel(MujocoXMLModel, metaclass=RobotModelMeta):
 
         # if the mount is mobile, the robot should be "merged" into the mount,
         # so that when the mount moves the robot moves along with it
+        # * merge robot to mobile base
         merge_body = self.root_body
         root = find_elements(root=self.worldbody, tags="body", attribs={"name": merge_body}, return_first=True)
         for body in mobile_base.worldbody:
@@ -274,6 +281,8 @@ class RobotModel(MujocoXMLModel, metaclass=RobotModelMeta):
 
         # Update cameras in this model
         self.cameras = self.get_element_names(self.worldbody, "camera")
+
+# endregion
 
     # -------------------------------------------------------------------------------------- #
     # Public Properties: In general, these are the name-adjusted versions from the private   #

@@ -11,7 +11,7 @@ from robosuite.controllers import load_composite_controller_config, load_part_co
 from robosuite.models.bases import robot_base_factory
 from robosuite.models.grippers import gripper_factory
 from robosuite.models.robots import create_robot
-from robosuite.models.robots.robot_model import REGISTERED_ROBOTS
+from robosuite.models.robots.robot_model import REGISTERED_ROBOTS, RobotModel
 from robosuite.utils.binding_utils import MjSim
 from robosuite.utils.buffers import DeltaBuffer, RingBuffer
 from robosuite.utils.log_utils import ROBOSUITE_DEFAULT_LOGGER
@@ -50,6 +50,8 @@ class Robot(object):
             in every second. This sets the amount of simulation time
             that passes between every action input.
     """
+    
+    robot_model: RobotModel
 
     def __init__(
         self,
@@ -157,11 +159,12 @@ class Robot(object):
                 continue
             if part_name in self.part_controller_config:
                 self.part_controller_config[part_name].update(controller_config)
-
-    def load_model(self):
+    # region load model
+    def load_model(self): 
         """
         Loads robot and optionally add grippers.
         """
+        # create robot model (xml) (grippers and base are loaded)
         self.robot_model = create_robot(self.name, idn=self.idn)
 
         # Add base if specified
@@ -169,7 +172,7 @@ class Robot(object):
             self.robot_model.add_base(base=robot_base_factory(self.robot_model.default_base, idn=self.idn))
         else:
             self.robot_model.add_base(base=robot_base_factory(self.base_type, idn=self.idn))
-
+        # update joint and actuator lists
         self.robot_model.update_joints()
         self.robot_model.update_actuators()
         # Use default from robot model for initial joint positions if not specified
@@ -220,6 +223,7 @@ class Robot(object):
         # https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mj-freelastxml
         # our solution to requiring robot-only mujoco MjModels is to load the robot MjModels once first
         # then using this mujoco MjModel herein
+        # * generate a robot-only MjModel. this MjModel is not used in generating the env MjModel and is only for storing raw robot metadata for later use
         self.robot_model.set_mujoco_model()
 
     def reset_sim(self, sim: MjSim):
@@ -254,6 +258,7 @@ class Robot(object):
             init_qpos += noise
 
         # Set initial position in sim
+        import ipdb; ipdb.set_trace()
         self.sim.data.qpos[self._ref_joint_pos_indexes] = init_qpos
 
         if self.robot_model.init_base_qpos is not None:
@@ -296,15 +301,50 @@ class Robot(object):
         # reset internal variables for composite controller
         self.composite_controller.update_state()
         self.composite_controller.reset()
-
+    # region setup references and observables
     def setup_references(self):
         """
+        retrieve the ids of the joint-related angles, vel, actuators, and sensors in the robot model, and store them in the robot instance.
+        
         Sets up necessary reference for robots, bases, grippers, and objects.
         """
         # indices for joints in qpos, qvel
         self.robot_joints = self.robot_model.joints
+        ##################################
+        for x in self.robot_joints:
+            res = self.sim.model.get_joint_qpos_addr(x)
+            if isinstance(res, tuple):
+                import ipdb; ipdb.set_trace()
+                print("joint name: ", x)
+                print("joint qpos addr: ", res)
+                print("--------------------")
+        ##################################
+        
+        
+        
         self._ref_joint_pos_indexes = [self.sim.model.get_joint_qpos_addr(x) for x in self.robot_joints]
         self._ref_joint_vel_indexes = [self.sim.model.get_joint_qvel_addr(x) for x in self.robot_joints]
+        
+        import ipdb; ipdb.set_trace()
+
+        # make the (start, end) tuple list elements
+        # result = []
+        # for ele in self._ref_joint_pos_indexes:
+        #     if isinstance(ele, tuple):
+        #         for i in range(ele[0], ele[1]+1):
+        #             result.append(i)
+        #     else:
+        #         result.append(ele)
+        # self._ref_joint_pos_indexes = result
+        
+        # result = []
+        # for ele in self._ref_joint_vel_indexes:
+        #     if isinstance(ele, tuple):
+        #         for i in range(ele[0], ele[1]+1):
+        #             result.append(i)
+        #     else:
+        #         result.append(ele)
+        # self._ref_joint_vel_indexes = result
 
         # indices for joint indexes
         self._ref_joint_indexes = [self.sim.model.joint_name2id(joint) for joint in self.robot_joints]
@@ -384,7 +424,7 @@ class Robot(object):
             )
 
         return observables
-
+    # region create sensors
     def _create_arm_sensors(self, arm, modality):
         """
         Helper function to create sensors for a given arm. This is abstracted in a separate function call so that we

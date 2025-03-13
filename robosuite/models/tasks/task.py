@@ -29,7 +29,7 @@ class Task(MujocoWorldBase):
         self,
         mujoco_arena,
         mujoco_robots,
-        mujoco_objects=None,
+        mujoco_objects=None, # fixtures
     ):
         super().__init__()
 
@@ -45,7 +45,7 @@ class Task(MujocoWorldBase):
         self.merge_arena(self.mujoco_arena)
         for mujoco_robot in self.mujoco_robots:
             self.merge_robot(mujoco_robot)
-        self.merge_objects(self.mujoco_objects)
+        self.merge_objects(self.mujoco_objects) # * merge fixtures
 
         self._instances_to_ids = None
         self._geom_ids_to_instances = None
@@ -56,25 +56,28 @@ class Task(MujocoWorldBase):
 
     def merge_robot(self, mujoco_robot):
         """
-        Adds robot model to the MJCF model.
+        Adds robot model to the MJCF model using the default merge method
 
         Args:
             mujoco_robot (RobotModel): robot to merge into this MJCF model
         """
+        # import ipdb; ipdb.set_trace()
         self.merge(mujoco_robot)
 
     def merge_arena(self, mujoco_arena):
         """
-        Adds arena model to the MJCF model.
+        Adds arena model to the MJCF model using the default merge method
 
         Args:
             mujoco_arena (Arena): arena to merge into this MJCF model
         """
         self.merge(mujoco_arena)
 
-    def merge_objects(self, mujoco_objects):
+    def merge_objects(self, mujoco_objects: list[MujocoObject]):
         """
         Adds object models to the MJCF model.
+        
+        Only add assets & append objects to the world body. no actuators, sensors, etc.
 
         Args:
             mujoco_objects (list of MujocoObject): objects to merge into this MJCF model
@@ -85,6 +88,7 @@ class Task(MujocoWorldBase):
                 type(mujoco_obj)
             )
             # Merge this object
+            # import ipdb; ipdb.set_trace()
             self.merge_assets(mujoco_obj)
             self.worldbody.append(mujoco_obj.get_obj())
 

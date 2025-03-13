@@ -85,9 +85,9 @@ class MujocoObject(MujocoModel):
             ):
                 self.asset.append(asset)
 
-    def get_obj(self):
+    def get_obj(self) -> ET.Element:
         """
-        Returns the generated / extracted object, in XML ElementTree form.
+        Returns the generated / extracted object, in XML ElementTree form. geoms and joints are all in this tree.
 
         Returns:
             ET.Element: Object in XML form.
@@ -511,6 +511,7 @@ class MujocoXMLObject(MujocoObject, MujocoXML):
     @property
     def rot(self):
         rot = string_to_array(self._obj.get("euler", "0.0 0.0 0.0"))
+        print("!!!! the rot property is the z-axis rotation of the object !!!!")
         return rot[2]
 
     def set_scale(self, scale, obj=None):

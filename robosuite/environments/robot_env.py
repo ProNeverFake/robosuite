@@ -13,6 +13,8 @@ from robosuite.utils.observables import Observable, sensor
 class RobotEnv(MujocoEnv):
     """
     Initializes a robot environment in Mujoco.
+    
+    Its @_load_model method will additionally call a @_load_robots method to instantiate the robot(s) specified in the environment.
 
     Args:
         robots: Specification for specific robot(s) to be instantiated within this env
@@ -144,8 +146,8 @@ class RobotEnv(MujocoEnv):
         camera_widths=256,
         camera_depths=False,
         camera_segmentations=None,
-        robot_configs=None,
-        renderer="mjviewer",
+        robot_configs=None, # * important gripper-robot correspondence
+        renderer="mjviewer", # ?
         renderer_config=None,
         seed=None,
     ):

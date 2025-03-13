@@ -432,7 +432,7 @@ class MobileRobot(Robot):
             self.base: base,
             self.legs: legs,
         }
-
+    # region Properties
     @property
     def is_mobile(self):
         return True

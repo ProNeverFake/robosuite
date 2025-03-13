@@ -9,3 +9,6 @@ from .ur5e_robot import UR5e
 from .spot_arm import SpotArm
 from .tiago_robot import Tiago
 from .gr1_robot import GR1, GR1FixedLowerBody, GR1ArmsOnly, GR1FloatingBody
+from .h1_2 import H1_2, H1_2ArmsOnly, H1_2FixedLowerBody, H1_2FloatingBody
+
+# ! BBMARK register type

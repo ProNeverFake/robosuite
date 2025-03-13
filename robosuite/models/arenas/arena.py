@@ -98,7 +98,7 @@ class Arena(MujocoXML):
 
     def set_camera(self, camera_name, pos, quat, camera_attribs=None):
         """
-        Sets a camera with @camera_name. If the camera already exists, then this overwrites its pos and quat values.
+        Sets a camera with @camera_name. If the camera with the same name already exists, then this overwrites its pos and quat values.
 
         Args:
             camera_name (str): Camera name to search for / create

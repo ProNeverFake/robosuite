@@ -56,13 +56,14 @@ class MujocoXML(object):
         Converts every file dependency into absolute path so when we merge we don't break things.
         # ! ask for the files to be in the same dir (cannot be nested or in different places)
         # ! may need to rewrite another absolute path parser
-        """
+        """     
 
         for node in self.asset.findall("./*[@file]"):
             file = node.get("file")
             abs_path = os.path.abspath(self.folder)
             abs_path = os.path.join(abs_path, file)
             node.set("file", abs_path)
+            print(node.get("file")) # ! BBMARK
             
         
 
@@ -105,6 +106,8 @@ class MujocoXML(object):
         for idx, other in enumerate(others):
             if not isinstance(other, MujocoXML):
                 raise XMLError("{} is not a MujocoXML instance.".format(type(other)))
+            
+            # determine the body as a whole if merge_body is not None
             if merge_body is not None:
                 root = (
                     self.worldbody
@@ -114,9 +117,14 @@ class MujocoXML(object):
                     )
                 )
                 # import ipdb; ipdb.set_trace()
+                # add all bodies to the root
                 for body in other.worldbody:
-                    root.append(body)
+                    root.append(body) # * here the body is appended to the root "as a whole", meaning the nested structure in "body" is preserved
+            
+            # merge the assets with # * unseen names    
             self.merge_assets(other)
+            
+            # other not nested contents in the @other
             for one_actuator in other.actuator:
                 self.actuator.append(one_actuator)
             for one_sensor in other.sensor:
@@ -130,7 +138,7 @@ class MujocoXML(object):
 
     def get_model(self, mode="mujoco"):
         """
-        Generates a MjModel instance from the current xml tree.
+        Generates a MjModel instance from the current xml tree (self.root).
 
         Args:
             mode (str): Mode with which to interpret xml tree
@@ -180,7 +188,7 @@ class MujocoXML(object):
 
     def merge_assets(self, other):
         """
-        Merges @other's assets in a custom logic.
+        Merges @other's assets in a custom logic. (assets with the same name are not merged)
 
         Args:
             other (MujocoXML or MujocoObject): other xml file whose assets will be merged into this one

@@ -63,7 +63,9 @@ class ManipulatorModel(RobotModel):
 
     def add_gripper(self, gripper: GripperModel, arm_name: Optional[str] = None):
         """
-        Mounts @gripper to arm.
+        Mounts @gripper to arm. The gripper is merged to the arm's eef body. 
+        
+        ### arm_name is the name of the arm mount!
 
         Throws error if robot already has a gripper or gripper type is incorrect.
 
@@ -93,7 +95,8 @@ class ManipulatorModel(RobotModel):
             self.cameras = self.get_element_names(self.worldbody, "camera")
 
     def update_joints(self):
-        """internal function to update joint lists"""
+        """internal function to update joint lists according to joint names"""
+        # collect hit cases
         for joint in self.all_joints:
             if "torso" in joint:
                 self.torso_joints.append(joint)
@@ -103,7 +106,7 @@ class ManipulatorModel(RobotModel):
                 self.head_joints.append(joint)
             elif "leg" in joint:
                 self.legs_joints.append(joint)
-
+        # catch all not-hit cases
         for joint in self.all_joints:
             if (
                 joint not in self._base_joints
